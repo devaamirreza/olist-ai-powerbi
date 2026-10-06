@@ -1,0 +1,172 @@
+table Orders
+	lineageTag: 0c39bbc0-1485-47bd-aa51-284e71c4056d
+
+	column order_id
+		dataType: string
+		lineageTag: fa6463ec-4d47-44cd-920e-cadb8692b7f3
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_id
+		dataType: string
+		lineageTag: 9e177770-ce25-4565-a739-9124558b56f7
+		summarizeBy: none
+		sourceColumn: customer_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_status
+		dataType: string
+		lineageTag: 9744ec04-d135-4d08-b269-66c844af4815
+		summarizeBy: none
+		sourceColumn: order_status
+
+		annotation SummarizationSetBy = Automatic
+
+	column PurchaseDateTime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 3b81a05e-41d1-43c8-b817-bac8a841dd7f
+		summarizeBy: none
+		sourceColumn: PurchaseDateTime
+
+		variation Variation
+			isDefault
+			relationship: 98cfbf92-f2da-4dc7-bd92-1339a74e72c7
+			defaultHierarchy: LocalDateTable_6b6dcbfa-e66a-4b76-a058-1e3c000338b4.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column ApprovedDateTime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: ff2792fe-e084-4b21-a9b3-027fb76bceb7
+		summarizeBy: none
+		sourceColumn: ApprovedDateTime
+
+		variation Variation
+			isDefault
+			relationship: e5e4ffd8-8cbb-496a-a701-0452402183c5
+			defaultHierarchy: LocalDateTable_2fd2e473-990b-42db-a5e8-9db0cd5806b6.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column CarrierDeliveryDate
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: f39aae3d-1424-4be9-aab9-ef93d2f0fcd7
+		summarizeBy: none
+		sourceColumn: CarrierDeliveryDate
+
+		variation Variation
+			isDefault
+			relationship: 81c1def3-c67c-40a7-a88f-507efca04de1
+			defaultHierarchy: LocalDateTable_a1799243-e10e-4cf1-98e0-cf4a8a37c139.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column CustomerDeliveryDate
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: d2661e4b-fcca-44cc-afdd-47a49042a2e4
+		summarizeBy: none
+		sourceColumn: CustomerDeliveryDate
+
+		variation Variation
+			isDefault
+			relationship: 5e12ad18-069a-468f-97d1-6eb9cdf0c985
+			defaultHierarchy: LocalDateTable_47186731-0b6e-44a1-a642-cccd541d8d82.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column EstimatedDeliveryDate
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 9eb7a3d5-4dac-4b08-90a8-2ba3f20c2301
+		summarizeBy: none
+		sourceColumn: EstimatedDeliveryDate
+
+		variation Variation
+			isDefault
+			relationship: 72fbfba0-6b22-440b-96f8-cb338e663148
+			defaultHierarchy: LocalDateTable_7af4627f-f86b-479f-9430-b4b2b8708bf1.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column DeliveryDays
+		dataType: int64
+		formatString: 0
+		lineageTag: ea413791-86d0-40e9-b97a-8ee783780156
+		summarizeBy: sum
+		sourceColumn: DeliveryDays
+
+		annotation SummarizationSetBy = Automatic
+
+	column DeliveryStatus
+		dataType: string
+		lineageTag: 735b9fe3-e698-428e-b7e0-c8a3d3f19b37
+		summarizeBy: none
+		sourceColumn: DeliveryStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column DeliveryPerformance
+		dataType: string
+		lineageTag: c205c17f-894a-47e4-97cf-ced06aef021f
+		summarizeBy: none
+		sourceColumn: DeliveryPerformance
+
+		annotation SummarizationSetBy = Automatic
+
+	column PurchaseDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 4d87f6b6-5afb-4c9d-9715-62bbf54f42e5
+		summarizeBy: none
+		sourceColumn: PurchaseDate
+
+		variation Variation
+			isDefault
+			relationship: 99ae9d1d-37f8-4423-ae1a-ac9e0264bac0
+			defaultHierarchy: LocalDateTable_6e2197f1-4cbd-4374-93eb-eec3e54583a9.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition Orders = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents("C:\Users\iamaa\Downloads\olist-ai-powerbi\data\raw\olist_orders_dataset.csv"), [Delimiter = ",", Columns = 8, QuoteStyle = QuoteStyle.None]),
+				  #"Promoted headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"order_id", type text}, {"customer_id", type text}, {"order_status", type text}, {"order_purchase_timestamp", type datetime}, {"order_approved_at", type datetime}, {"order_delivered_carrier_date", type datetime}, {"order_delivered_customer_date", type datetime}, {"order_estimated_delivery_date", type datetime}}, "en-US"),
+				  #"Added custom" = Table.AddColumn(#"Changed column type", "DeliveryDays", each if [order_delivered_customer_date] = null then
+				    null
+				else
+				    Duration.Days(
+				        [order_delivered_customer_date] - [order_purchase_timestamp]
+				    )),
+				  #"Changed column type 1" = Table.TransformColumnTypes(#"Added custom", {{"DeliveryDays", Int64.Type}}),
+				  #"Added custom 1" = Table.AddColumn(#"Changed column type 1", "DeliveryStatus", each if [order_delivered_customer_date] = null then
+				    "Not Delivered"
+				else
+				    "Delivered"),
+				  #"Changed column type 2" = Table.TransformColumnTypes(#"Added custom 1", {{"DeliveryStatus", type text}}),
+				  #"Added custom 2" = Table.AddColumn(#"Changed column type 2", "DeliveryPerformance", each if [order_delivered_customer_date] = null then
+				    "Not Delivered"
+				else if [order_delivered_customer_date] <= [order_estimated_delivery_date] then
+				    "On Time"
+				else
+				    "Late"),
+				  #"Changed column type 3" = Table.TransformColumnTypes(#"Added custom 2", {{"DeliveryPerformance", type text}}),
+				  #"Renamed columns" = Table.RenameColumns(#"Changed column type 3", {{"order_purchase_timestamp", "PurchaseDateTime"}, {"order_approved_at", "ApprovedDateTime"}, {"order_delivered_carrier_date", "CarrierDeliveryDate"}, {"order_delivered_customer_date", "CustomerDeliveryDate"}, {"order_estimated_delivery_date", "EstimatedDeliveryDate"}}),
+				  #"Added custom 3" = Table.AddColumn(#"Renamed columns", "PurchaseDate", each Date.From([PurchaseDateTime])),
+				  #"Changed column type 4" = Table.TransformColumnTypes(#"Added custom 3", {{"PurchaseDate", type date}})
+				in
+				  #"Changed column type 4"
+
+	annotation PBI_ResultType = Table
+

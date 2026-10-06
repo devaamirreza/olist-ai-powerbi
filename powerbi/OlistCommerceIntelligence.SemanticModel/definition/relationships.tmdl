@@ -1,0 +1,45 @@
+relationship 98cfbf92-f2da-4dc7-bd92-1339a74e72c7
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Orders.PurchaseDateTime
+	toColumn: LocalDateTable_6b6dcbfa-e66a-4b76-a058-1e3c000338b4.Date
+
+relationship e5e4ffd8-8cbb-496a-a701-0452402183c5
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Orders.ApprovedDateTime
+	toColumn: LocalDateTable_2fd2e473-990b-42db-a5e8-9db0cd5806b6.Date
+
+relationship 81c1def3-c67c-40a7-a88f-507efca04de1
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Orders.CarrierDeliveryDate
+	toColumn: LocalDateTable_a1799243-e10e-4cf1-98e0-cf4a8a37c139.Date
+
+relationship 5e12ad18-069a-468f-97d1-6eb9cdf0c985
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Orders.CustomerDeliveryDate
+	toColumn: LocalDateTable_47186731-0b6e-44a1-a642-cccd541d8d82.Date
+
+relationship 72fbfba0-6b22-440b-96f8-cb338e663148
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Orders.EstimatedDeliveryDate
+	toColumn: LocalDateTable_7af4627f-f86b-479f-9430-b4b2b8708bf1.Date
+
+relationship 99ae9d1d-37f8-4423-ae1a-ac9e0264bac0
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Orders.PurchaseDate
+	toColumn: LocalDateTable_6e2197f1-4cbd-4374-93eb-eec3e54583a9.Date
+
+relationship 1500e3e3-ab4a-4838-acd2-56adf3600e57
+	joinOnDateBehavior: datePartOnly
+	fromColumn: OrderItems.shipping_limit_date
+	toColumn: LocalDateTable_a5ce3deb-d70b-4303-af9b-0359bdc7e400.Date
+
+relationship AutoDetected_0956e37c-b3c1-41f7-880d-c434c58e17a8
+	fromColumn: OrderItems.order_id
+	toColumn: Orders.order_id
+
+relationship AutoDetected_664f490c-3a75-4b2f-9e20-34e295730ee3
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: Customers.customer_id
+	toColumn: Orders.customer_id
+

@@ -1,0 +1,118 @@
+table OrderItems
+	lineageTag: d25dc47c-a5f9-4b15-b0e8-a490f927685f
+
+	column order_id
+		dataType: string
+		lineageTag: a0db9a8f-8f09-483e-95cf-b13ad1dcd00c
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_item_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 8709434d-f6ac-47db-846f-6d65bb0db417
+		summarizeBy: sum
+		sourceColumn: order_item_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_id
+		dataType: string
+		lineageTag: c4a93af2-554c-4bd6-ac86-2f8c8722c9c1
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column seller_id
+		dataType: string
+		lineageTag: 1ac07e35-1471-4c41-b1f2-72e721e1f99f
+		summarizeBy: none
+		sourceColumn: seller_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column shipping_limit_date
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 234be8d0-fd72-4531-81de-8d93f80d7459
+		summarizeBy: none
+		sourceColumn: shipping_limit_date
+
+		variation Variation
+			isDefault
+			relationship: 1500e3e3-ab4a-4838-acd2-56adf3600e57
+			defaultHierarchy: LocalDateTable_a5ce3deb-d70b-4303-af9b-0359bdc7e400.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column price
+		dataType: double
+		lineageTag: 2bed39a8-51f8-4e3a-998b-80624caab4c6
+		summarizeBy: sum
+		sourceColumn: price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column freight_value
+		dataType: double
+		lineageTag: f90b5356-4d54-444c-9dea-3523625ecc1c
+		summarizeBy: sum
+		sourceColumn: freight_value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column SalesAmount
+		dataType: double
+		lineageTag: e6b881d1-f6a5-4cdc-a768-272baabe8376
+		summarizeBy: sum
+		sourceColumn: SalesAmount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column FreightAmount
+		dataType: double
+		lineageTag: 4f954c51-23b7-4f99-9f42-a26d2aea4e1d
+		summarizeBy: sum
+		sourceColumn: FreightAmount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ItemTotalAmount
+		dataType: double
+		lineageTag: cb29cb7b-3b08-44e5-8faa-a28dab532c33
+		summarizeBy: sum
+		sourceColumn: ItemTotalAmount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition OrderItems = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents("C:\Users\iamaa\Downloads\olist-ai-powerbi\data\raw\olist_order_items_dataset.csv"), [Delimiter = ",", Columns = 7, QuoteStyle = QuoteStyle.None]),
+				  #"Promoted headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"order_id", type text}, {"order_item_id", Int64.Type}, {"product_id", type text}, {"seller_id", type text}, {"shipping_limit_date", type datetime}, {"price", type number}, {"freight_value", type number}}, "en-US"),
+				  #"Added custom" = Table.AddColumn(#"Changed column type", "SalesAmount", each [price]),
+				  #"Changed column type 1" = Table.TransformColumnTypes(#"Added custom", {{"SalesAmount", type number}}),
+				  #"Added custom 1" = Table.AddColumn(#"Changed column type 1", "FreightAmount", each [freight_value]),
+				  #"Changed column type 2" = Table.TransformColumnTypes(#"Added custom 1", {{"FreightAmount", type number}}),
+				  #"Added custom 2" = Table.AddColumn(#"Changed column type 2", "ItemTotalAmount", each [SalesAmount] + [FreightAmount]),
+				  #"Changed column type 3" = Table.TransformColumnTypes(#"Added custom 2", {{"ItemTotalAmount", type number}})
+				in
+				  #"Changed column type 3"
+
+	annotation PBI_ResultType = Table
+
