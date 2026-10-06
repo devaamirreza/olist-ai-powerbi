@@ -61,3 +61,7 @@ relationship AutoDetected_cd8fe4e9-dfc6-43b4-ab92-2966d947d002
 	fromColumn: Reviews.order_id
 	toColumn: Orders.order_id
 
+relationship AutoDetected_f5c07642-fc98-44cb-8dd2-1828ad8a4482
+	fromColumn: OrderItems.product_id
+	toColumn: Products.ProductID
+
