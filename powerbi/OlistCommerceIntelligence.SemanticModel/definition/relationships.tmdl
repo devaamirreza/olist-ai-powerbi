@@ -43,3 +43,7 @@ relationship AutoDetected_664f490c-3a75-4b2f-9e20-34e295730ee3
 	fromColumn: Customers.customer_id
 	toColumn: Orders.customer_id
 
+relationship AutoDetected_7ec76bbb-aa47-4452-a235-ad014e5ae7a6
+	fromColumn: Payments.order_id
+	toColumn: Orders.order_id
+

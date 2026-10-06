@@ -1,0 +1,60 @@
+table Payments
+	lineageTag: c46278f7-514b-40b7-9150-4ea0164946d6
+
+	column order_id
+		dataType: string
+		lineageTag: 956f85fc-3073-4a00-9c6a-a9aedb583906
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column PaymentSequence
+		dataType: int64
+		formatString: 0
+		lineageTag: 94c6731e-1632-441a-8b7c-85e2c40ed972
+		summarizeBy: sum
+		sourceColumn: PaymentSequence
+
+		annotation SummarizationSetBy = Automatic
+
+	column PaymentType
+		dataType: string
+		lineageTag: a58d8090-dc0b-44e1-89cd-ffbc3058996b
+		summarizeBy: none
+		sourceColumn: PaymentType
+
+		annotation SummarizationSetBy = Automatic
+
+	column PaymentInstallments
+		dataType: int64
+		formatString: 0
+		lineageTag: 9980c209-50d0-4c70-8174-805df19298fe
+		summarizeBy: sum
+		sourceColumn: PaymentInstallments
+
+		annotation SummarizationSetBy = Automatic
+
+	column PaymentAmount
+		dataType: double
+		lineageTag: 13b68475-e9d6-4edb-a6c2-45cd06444125
+		summarizeBy: sum
+		sourceColumn: PaymentAmount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition Payments = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents("C:\Users\iamaa\Downloads\olist-ai-powerbi\data\raw\olist_order_payments_dataset.csv"), [Delimiter = ",", Columns = 5, QuoteStyle = QuoteStyle.None]),
+				  #"Promoted headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"order_id", type text}, {"payment_sequential", Int64.Type}, {"payment_type", type text}, {"payment_installments", Int64.Type}, {"payment_value", type number}}, "en-US"),
+				  #"Renamed columns" = Table.RenameColumns(#"Changed column type", {{"payment_value", "PaymentAmount"}, {"payment_sequential", "PaymentSequence"}, {"payment_type", "PaymentType"}, {"payment_installments", "PaymentInstallments"}})
+				in
+				  #"Renamed columns"
+
+	annotation PBI_ResultType = Table
+
