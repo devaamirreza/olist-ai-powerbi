@@ -1,0 +1,100 @@
+table Reviews
+	lineageTag: 19e3564c-72b7-4196-8cea-37cf9d5bac2b
+
+	column review_id
+		dataType: string
+		lineageTag: fa61d735-1275-4a09-b88b-e7b1a7829f99
+		summarizeBy: none
+		sourceColumn: review_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_id
+		dataType: string
+		lineageTag: cd3000bc-b7a0-4423-a390-a710060a490c
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column ReviewScore
+		dataType: int64
+		formatString: 0
+		lineageTag: b3196ee7-711c-44db-acf9-0deea173ddc8
+		summarizeBy: sum
+		sourceColumn: ReviewScore
+
+		annotation SummarizationSetBy = Automatic
+
+	column ReviewCommentTitle
+		dataType: string
+		lineageTag: 27c28e57-e9e4-4e90-9fe4-39ed59f9b288
+		summarizeBy: none
+		sourceColumn: ReviewCommentTitle
+
+		annotation SummarizationSetBy = Automatic
+
+	column ReviewCommentMessage
+		dataType: string
+		lineageTag: 7f326414-7034-49eb-b4e9-180548d18147
+		summarizeBy: none
+		sourceColumn: ReviewCommentMessage
+
+		annotation SummarizationSetBy = Automatic
+
+	column ReviewCreationDate
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: e3fc323b-2edf-448d-ac54-5ba709e6f8b2
+		summarizeBy: none
+		sourceColumn: ReviewCreationDate
+
+		variation Variation
+			isDefault
+			relationship: 5533dcfc-2dfc-4c55-814d-47ba35de568f
+			defaultHierarchy: LocalDateTable_65fd8929-4167-4d37-acae-68ac59110d49.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column ReviewAnswerDateTime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: d9bb8f38-8c14-4dff-b6af-4051344838c9
+		summarizeBy: none
+		sourceColumn: ReviewAnswerDateTime
+
+		variation Variation
+			isDefault
+			relationship: c1e2c1dc-5599-4469-aa49-d0cca043744d
+			defaultHierarchy: LocalDateTable_2be4c324-92d8-444c-844c-9751f8673ab5.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column ReviewCategory
+		dataType: string
+		lineageTag: 31fc431d-7e99-4a02-85f3-799c0cfb2bfd
+		summarizeBy: none
+		sourceColumn: ReviewCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Reviews = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents("C:\Users\iamaa\Downloads\olist-ai-powerbi\data\raw\olist_order_reviews_dataset.csv"), [Delimiter = ",", Columns = 7, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				  #"Promoted headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"review_id", type text}, {"order_id", type text}, {"review_score", Int64.Type}, {"review_comment_title", type text}, {"review_comment_message", type text}, {"review_creation_date", type datetime}, {"review_answer_timestamp", type datetime}}, "en-US"),
+				  #"Renamed columns" = Table.RenameColumns(#"Changed column type", {{"review_score", "ReviewScore"}, {"review_comment_title", "ReviewCommentTitle"}, {"review_comment_message", "ReviewCommentMessage"}, {"review_creation_date", "ReviewCreationDate"}, {"review_answer_timestamp", "ReviewAnswerDateTime"}}),
+				  #"Added custom" = Table.AddColumn(#"Renamed columns", "ReviewCategory", each if [ReviewScore] <= 2 then
+				    "Negative"
+				else if [ReviewScore] = 3 then
+				    "Neutral"
+				else
+				    "Positive"),
+				  #"Changed column type 1" = Table.TransformColumnTypes(#"Added custom", {{"ReviewCategory", type text}})
+				in
+				  #"Changed column type 1"
+
+	annotation PBI_ResultType = Table
+

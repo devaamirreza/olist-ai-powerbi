@@ -47,3 +47,17 @@ relationship AutoDetected_7ec76bbb-aa47-4452-a235-ad014e5ae7a6
 	fromColumn: Payments.order_id
 	toColumn: Orders.order_id
 
+relationship 5533dcfc-2dfc-4c55-814d-47ba35de568f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Reviews.ReviewCreationDate
+	toColumn: LocalDateTable_65fd8929-4167-4d37-acae-68ac59110d49.Date
+
+relationship c1e2c1dc-5599-4469-aa49-d0cca043744d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Reviews.ReviewAnswerDateTime
+	toColumn: LocalDateTable_2be4c324-92d8-444c-844c-9751f8673ab5.Date
+
+relationship AutoDetected_cd8fe4e9-dfc6-43b4-ab92-2966d947d002
+	fromColumn: Reviews.order_id
+	toColumn: Orders.order_id
+
