@@ -27,6 +27,52 @@ table Orders
 		formatString: 0.0%
 		lineageTag: 3d81aaaf-88c1-4174-9329-a0a860fe65bc
 
+	measure 'Repeat Customer Rate' =
+			VAR CustomerOrderCounts =
+			    ADDCOLUMNS(
+			        FILTER(
+			            VALUES('Orders'[customer_unique_id]),
+			            NOT ISBLANK('Orders'[customer_unique_id])
+			        ),
+			        "@OrderCount", CALCULATE(DISTINCTCOUNT('Orders'[order_id]))
+			    )
+			RETURN
+			    DIVIDE(
+			        COUNTROWS(FILTER(CustomerOrderCounts, [@OrderCount] > 1)),
+			        COUNTROWS(CustomerOrderCounts)
+			    )
+		formatString: 0.0%
+		lineageTag: e6e90d7f-8ef7-4e26-8405-a83eb707b700
+
+	measure 'Canceled / Unavailable Order Rate' =
+			DIVIDE(
+			    CALCULATE(
+			        [Total Orders],
+			        'Orders'[order_status] IN { "canceled", "unavailable" }
+			    ),
+			    [Total Orders]
+			)
+		formatString: 0.0%
+		lineageTag: 4ad76beb-f211-4b6c-b5a8-f6516fafeb11
+
+	measure 'Average Days Late' =
+			AVERAGEX(
+			    FILTER(
+			        'Orders',
+			        'Orders'[DeliveryStatus] = "Delivered"
+			            && NOT ISBLANK('Orders'[CustomerDeliveryDate])
+			            && NOT ISBLANK('Orders'[EstimatedDeliveryDate])
+			            && 'Orders'[CustomerDeliveryDate] > 'Orders'[EstimatedDeliveryDate]
+			    ),
+			    DATEDIFF(
+			        'Orders'[EstimatedDeliveryDate],
+			        'Orders'[CustomerDeliveryDate],
+			        DAY
+			    )
+			)
+		formatString: 0.0
+		lineageTag: 66ef6b0a-33c1-4057-9a07-d19a765b3524
+
 	column order_id
 		dataType: string
 		lineageTag: fa6463ec-4d47-44cd-920e-cadb8692b7f3
