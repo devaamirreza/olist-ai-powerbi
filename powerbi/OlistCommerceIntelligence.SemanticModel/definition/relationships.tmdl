@@ -65,3 +65,7 @@ relationship AutoDetected_f5c07642-fc98-44cb-8dd2-1828ad8a4482
 	fromColumn: OrderItems.product_id
 	toColumn: Products.ProductID
 
+relationship AutoDetected_8804ff79-6bff-414f-a415-97472b8e6149
+	fromColumn: OrderItems.seller_id
+	toColumn: Sellers.SellerID
+

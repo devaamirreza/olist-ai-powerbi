@@ -1,0 +1,76 @@
+table Sellers
+	lineageTag: 2d37aca4-a2f5-4eca-ad25-31a3e45fc20d
+
+	column SellerID
+		dataType: string
+		lineageTag: 317bd0c2-11fb-42b8-a0f4-e7d161aa46cf
+		summarizeBy: none
+		sourceColumn: SellerID
+
+		annotation SummarizationSetBy = Automatic
+
+	column SellerZipCode
+		dataType: int64
+		formatString: 0
+		lineageTag: 92d81923-df51-499a-a701-2541d2580070
+		summarizeBy: none
+		sourceColumn: SellerZipCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column SellerCity
+		dataType: string
+		lineageTag: 7d9e8ea8-13c2-4ec7-a6f7-9165c6fdef42
+		summarizeBy: none
+		sourceColumn: SellerCity
+
+		annotation SummarizationSetBy = Automatic
+
+	column SellerState
+		dataType: string
+		lineageTag: e50ae065-3814-4362-9da4-586369e94ad7
+		summarizeBy: none
+		sourceColumn: SellerState
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Sellers = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(
+				        File.Contents("C:\Users\iamaa\Downloads\olist-ai-powerbi\data\raw\olist_sellers_dataset.csv"),
+				        [Delimiter = ",", Columns = 4, QuoteStyle = QuoteStyle.None]
+				    ),
+				
+				    #"Promoted Headers" = Table.PromoteHeaders(
+				        Source,
+				        [PromoteAllScalars = true]
+				    ),
+				
+				    #"Changed Column Types" = Table.TransformColumnTypes(
+				        #"Promoted Headers",
+				        {
+				            {"seller_id", type text},
+				            {"seller_zip_code_prefix", Int64.Type},
+				            {"seller_city", type text},
+				            {"seller_state", type text}
+				        },
+				        "en-US"
+				    ),
+				
+				    #"Renamed Columns" = Table.RenameColumns(
+				        #"Changed Column Types",
+				        {
+				            {"seller_id", "SellerID"},
+				            {"seller_zip_code_prefix", "SellerZipCode"},
+				            {"seller_city", "SellerCity"},
+				            {"seller_state", "SellerState"}
+				        }
+				    )
+				
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_ResultType = Table
+
