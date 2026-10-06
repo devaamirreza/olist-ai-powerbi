@@ -1,0 +1,55 @@
+table CategoryTranslation
+	lineageTag: 3548b9c1-6e72-425e-b8db-6135889a1ea2
+
+	column ProductCategory
+		dataType: string
+		lineageTag: e78e61b8-896c-4fea-8e1a-13eddedc2630
+		summarizeBy: none
+		sourceColumn: ProductCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductCategoryEnglish
+		dataType: string
+		lineageTag: 02b1f0bc-986e-4782-ac86-af4922bb6fc9
+		summarizeBy: none
+		sourceColumn: ProductCategoryEnglish
+
+		annotation SummarizationSetBy = Automatic
+
+	partition CategoryTranslation = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(
+				        File.Contents("C:\Users\iamaa\Downloads\olist-ai-powerbi\data\raw\product_category_name_translation.csv"),
+				        [Delimiter = ",", Columns = 2, QuoteStyle = QuoteStyle.None]
+				    ),
+				
+				    #"Promoted Headers" = Table.PromoteHeaders(
+				        Source,
+				        [PromoteAllScalars = true]
+				    ),
+				
+				    #"Changed Column Types" = Table.TransformColumnTypes(
+				        #"Promoted Headers",
+				        {
+				            {"product_category_name", type text},
+				            {"product_category_name_english", type text}
+				        },
+				        "en-US"
+				    ),
+				
+				    #"Renamed Columns" = Table.RenameColumns(
+				        #"Changed Column Types",
+				        {
+				            {"product_category_name", "ProductCategory"},
+				            {"product_category_name_english", "ProductCategoryEnglish"}
+				        }
+				    )
+				
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_ResultType = Table
+
