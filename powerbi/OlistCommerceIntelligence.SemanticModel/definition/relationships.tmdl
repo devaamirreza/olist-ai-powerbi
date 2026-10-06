@@ -63,16 +63,7 @@ relationship AutoDetected_8804ff79-6bff-414f-a415-97472b8e6149
 	fromColumn: OrderItems.seller_id
 	toColumn: Sellers.SellerID
 
-relationship 29d00810-274e-2f36-058b-e7d963635ec2
-	fromColumn: Orders.customer_id
-	toColumn: Customers.customer_id
-
 relationship AutoDetected_db564310-0805-45cc-9950-b5b74636fd28
 	fromColumn: Orders.customer_unique_id
-	toColumn: DimCustomer.CustomerUniqueID
-
-relationship AutoDetected_482096ca-f1de-4c11-a31e-d83f4a46ff13
-	isActive: false
-	fromColumn: Customers.customer_unique_id
 	toColumn: DimCustomer.CustomerUniqueID
 
