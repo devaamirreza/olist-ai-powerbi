@@ -13,6 +13,10 @@ table OrderItems
 		formatString: #,##0.00
 		lineageTag: 15a922c0-28ce-4d14-9aec-3d2948775ce3
 
+	measure 'Freight-to-Sales Ratio' = DIVIDE([Total Freight], [Total Sales])
+		formatString: 0.0%
+		lineageTag: f71d3c0f-ce85-487e-b9db-c7f790ca146d
+
 	column order_id
 		dataType: string
 		lineageTag: a0db9a8f-8f09-483e-95cf-b13ad1dcd00c
