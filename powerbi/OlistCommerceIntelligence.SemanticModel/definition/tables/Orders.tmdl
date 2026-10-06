@@ -136,37 +136,116 @@ table Orders
 
 		annotation UnderlyingDateTimeDataType = Date
 
+	column customer_unique_id
+		dataType: string
+		lineageTag: eaeab4a3-a03c-4d3c-976b-9a61b403d040
+		summarizeBy: none
+		sourceColumn: customer_unique_id
+
+		annotation SummarizationSetBy = Automatic
+
 	partition Orders = m
 		mode: import
 		source =
 				let
-				  Source = Csv.Document(File.Contents("C:\Users\iamaa\Downloads\olist-ai-powerbi\data\raw\olist_orders_dataset.csv"), [Delimiter = ",", Columns = 8, QuoteStyle = QuoteStyle.None]),
-				  #"Promoted headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
-				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"order_id", type text}, {"customer_id", type text}, {"order_status", type text}, {"order_purchase_timestamp", type datetime}, {"order_approved_at", type datetime}, {"order_delivered_carrier_date", type datetime}, {"order_delivered_customer_date", type datetime}, {"order_estimated_delivery_date", type datetime}}, "en-US"),
-				  #"Added custom" = Table.AddColumn(#"Changed column type", "DeliveryDays", each if [order_delivered_customer_date] = null then
-				    null
-				else
-				    Duration.Days(
-				        [order_delivered_customer_date] - [order_purchase_timestamp]
-				    )),
-				  #"Changed column type 1" = Table.TransformColumnTypes(#"Added custom", {{"DeliveryDays", Int64.Type}}),
-				  #"Added custom 1" = Table.AddColumn(#"Changed column type 1", "DeliveryStatus", each if [order_delivered_customer_date] = null then
-				    "Not Delivered"
-				else
-				    "Delivered"),
-				  #"Changed column type 2" = Table.TransformColumnTypes(#"Added custom 1", {{"DeliveryStatus", type text}}),
-				  #"Added custom 2" = Table.AddColumn(#"Changed column type 2", "DeliveryPerformance", each if [order_delivered_customer_date] = null then
-				    "Not Delivered"
-				else if [order_delivered_customer_date] <= [order_estimated_delivery_date] then
-				    "On Time"
-				else
-				    "Late"),
-				  #"Changed column type 3" = Table.TransformColumnTypes(#"Added custom 2", {{"DeliveryPerformance", type text}}),
-				  #"Renamed columns" = Table.RenameColumns(#"Changed column type 3", {{"order_purchase_timestamp", "PurchaseDateTime"}, {"order_approved_at", "ApprovedDateTime"}, {"order_delivered_carrier_date", "CarrierDeliveryDate"}, {"order_delivered_customer_date", "CustomerDeliveryDate"}, {"order_estimated_delivery_date", "EstimatedDeliveryDate"}}),
-				  #"Added custom 3" = Table.AddColumn(#"Renamed columns", "PurchaseDate", each Date.From([PurchaseDateTime])),
-				  #"Changed column type 4" = Table.TransformColumnTypes(#"Added custom 3", {{"PurchaseDate", type date}})
+				    Source = Csv.Document(
+				        File.Contents("C:\Users\iamaa\Downloads\olist-ai-powerbi\data\raw\olist_orders_dataset.csv"),
+				        [Delimiter = ",", Columns = 8, QuoteStyle = QuoteStyle.None]
+				    ),
+				
+				    #"Promoted Headers" = Table.PromoteHeaders(
+				        Source,
+				        [PromoteAllScalars = true]
+				    ),
+				
+				    #"Changed Column Types" = Table.TransformColumnTypes(
+				        #"Promoted Headers",
+				        {
+				            {"order_id", type text},
+				            {"customer_id", type text},
+				            {"order_status", type text},
+				            {"order_purchase_timestamp", type datetime},
+				            {"order_approved_at", type datetime},
+				            {"order_delivered_carrier_date", type datetime},
+				            {"order_delivered_customer_date", type datetime},
+				            {"order_estimated_delivery_date", type datetime}
+				        },
+				        "en-US"
+				    ),
+				
+				    #"Added DeliveryDays" = Table.AddColumn(
+				        #"Changed Column Types",
+				        "DeliveryDays",
+				        each
+				            if [order_delivered_customer_date] = null then
+				                null
+				            else
+				                Duration.Days(
+				                    [order_delivered_customer_date] - [order_purchase_timestamp]
+				                ),
+				        Int64.Type
+				    ),
+				
+				    #"Added DeliveryStatus" = Table.AddColumn(
+				        #"Added DeliveryDays",
+				        "DeliveryStatus",
+				        each
+				            if [order_delivered_customer_date] = null then
+				                "Not Delivered"
+				            else
+				                "Delivered",
+				        type text
+				    ),
+				
+				    #"Added DeliveryPerformance" = Table.AddColumn(
+				        #"Added DeliveryStatus",
+				        "DeliveryPerformance",
+				        each
+				            if [order_delivered_customer_date] = null then
+				                "Not Delivered"
+				            else if [order_delivered_customer_date] <= [order_estimated_delivery_date] then
+				                "On Time"
+				            else
+				                "Late",
+				        type text
+				    ),
+				
+				    #"Renamed Columns" = Table.RenameColumns(
+				        #"Added DeliveryPerformance",
+				        {
+				            {"order_purchase_timestamp", "PurchaseDateTime"},
+				            {"order_approved_at", "ApprovedDateTime"},
+				            {"order_delivered_carrier_date", "CarrierDeliveryDate"},
+				            {"order_delivered_customer_date", "CustomerDeliveryDate"},
+				            {"order_estimated_delivery_date", "EstimatedDeliveryDate"}
+				        }
+				    ),
+				
+				    #"Added PurchaseDate" = Table.AddColumn(
+				        #"Renamed Columns",
+				        "PurchaseDate",
+				        each Date.From([PurchaseDateTime]),
+				        type date
+				    ),
+				
+				    #"Merged Customers" = Table.NestedJoin(
+				        #"Added PurchaseDate",
+				        {"customer_id"},
+				        Customers,
+				        {"customer_id"},
+				        "CustomerLookup",
+				        JoinKind.LeftOuter
+				    ),
+				
+				    #"Expanded Customer Unique ID" = Table.ExpandTableColumn(
+				        #"Merged Customers",
+				        "CustomerLookup",
+				        {"customer_unique_id"},
+				        {"customer_unique_id"}
+				    )
+				
 				in
-				  #"Changed column type 4"
+				    #"Expanded Customer Unique ID"
 
 	annotation PBI_ResultType = Table
 

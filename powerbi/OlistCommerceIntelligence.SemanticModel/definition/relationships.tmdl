@@ -37,12 +37,6 @@ relationship AutoDetected_0956e37c-b3c1-41f7-880d-c434c58e17a8
 	fromColumn: OrderItems.order_id
 	toColumn: Orders.order_id
 
-relationship AutoDetected_664f490c-3a75-4b2f-9e20-34e295730ee3
-	crossFilteringBehavior: bothDirections
-	fromCardinality: one
-	fromColumn: Customers.customer_id
-	toColumn: Orders.customer_id
-
 relationship AutoDetected_7ec76bbb-aa47-4452-a235-ad014e5ae7a6
 	fromColumn: Payments.order_id
 	toColumn: Orders.order_id
@@ -68,4 +62,8 @@ relationship AutoDetected_f5c07642-fc98-44cb-8dd2-1828ad8a4482
 relationship AutoDetected_8804ff79-6bff-414f-a415-97472b8e6149
 	fromColumn: OrderItems.seller_id
 	toColumn: Sellers.SellerID
+
+relationship 29d00810-274e-2f36-058b-e7d963635ec2
+	fromColumn: Orders.customer_id
+	toColumn: Customers.customer_id
 
