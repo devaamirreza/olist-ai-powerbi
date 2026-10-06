@@ -1,0 +1,79 @@
+table DimCustomer
+	lineageTag: a7914a82-a8c7-4441-9628-d6c804529fec
+
+	column CustomerUniqueID
+		dataType: string
+		lineageTag: b8f4e1b3-3874-47ad-8f2b-fe02eef6e6a5
+		summarizeBy: none
+		sourceColumn: CustomerUniqueID
+
+		annotation SummarizationSetBy = Automatic
+
+	column CustomerZipCode
+		dataType: int64
+		formatString: 0
+		lineageTag: 69681594-074a-4347-bacb-100dddcd7ab5
+		summarizeBy: none
+		sourceColumn: CustomerZipCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column CustomerCity
+		dataType: string
+		lineageTag: 30b70896-98ad-469c-876b-d662b995ff4e
+		summarizeBy: none
+		sourceColumn: CustomerCity
+
+		annotation SummarizationSetBy = Automatic
+
+	column CustomerState
+		dataType: string
+		lineageTag: 7e27b811-4e38-4f7d-ae3b-3587ab28a864
+		summarizeBy: none
+		sourceColumn: CustomerState
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimCustomer = m
+		mode: import
+		source =
+				let
+				    Source = Customers,
+				
+				    #"Selected Columns" = Table.SelectColumns(
+				        Source,
+				        {
+				            "customer_unique_id",
+				            "CustomerZipCode",
+				            "CustomerCity",
+				            "CustomerState"
+				        }
+				    ),
+				
+				    #"Removed Duplicates" = Table.Distinct(
+				        #"Selected Columns",
+				        {"customer_unique_id"}
+				    ),
+				
+				    #"Renamed Columns" = Table.RenameColumns(
+				        #"Removed Duplicates",
+				        {
+				            {"customer_unique_id", "CustomerUniqueID"}
+				        }
+				    ),
+				
+				    #"Changed Column Types" = Table.TransformColumnTypes(
+				        #"Renamed Columns",
+				        {
+				            {"CustomerUniqueID", type text},
+				            {"CustomerZipCode", Int64.Type},
+				            {"CustomerCity", type text},
+				            {"CustomerState", type text}
+				        }
+				    )
+				
+				in
+				    #"Changed Column Types"
+
+	annotation PBI_ResultType = Table
+
