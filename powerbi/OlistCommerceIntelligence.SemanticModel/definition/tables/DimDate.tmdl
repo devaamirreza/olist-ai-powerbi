@@ -1,0 +1,172 @@
+table DimDate
+	lineageTag: eb73b23a-8233-4ca6-ac25-2012dfb5ef51
+
+	column Date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: e5b00e46-d9fc-4612-8e05-fc74ceb70a8b
+		summarizeBy: none
+		sourceColumn: Date
+
+		variation Variation
+			isDefault
+			relationship: 78425f98-c891-4823-b784-0a2bd18a9667
+			defaultHierarchy: LocalDateTable_13466685-572b-48d0-989d-47eee4e3722b.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 623fffea-b911-4c28-a5b3-8225d4e1cf78
+		summarizeBy: sum
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		dataType: string
+		lineageTag: a57c06d1-6a9c-48b0-8c69-cf88d1637c0f
+		summarizeBy: none
+		sourceColumn: Quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthNumber
+		dataType: int64
+		formatString: 0
+		lineageTag: 768d78a4-a63d-4944-a61d-3fe5cd4fac9e
+		summarizeBy: sum
+		sourceColumn: MonthNumber
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month
+		dataType: string
+		lineageTag: 6b54891f-157d-46d1-94e7-df2b1d006757
+		summarizeBy: none
+		sourceColumn: Month
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthYear
+		dataType: string
+		lineageTag: 9958548a-1653-44fc-882e-462a6fdb180f
+		summarizeBy: none
+		sourceColumn: MonthYear
+
+		annotation SummarizationSetBy = Automatic
+
+	column Day
+		dataType: int64
+		formatString: 0
+		lineageTag: b25de439-e566-43e5-bda7-69be4e345626
+		summarizeBy: sum
+		sourceColumn: Day
+
+		annotation SummarizationSetBy = Automatic
+
+	column DayOfWeek
+		dataType: string
+		lineageTag: a3bb9f06-23df-4fed-8320-7c2f70e9f36b
+		summarizeBy: none
+		sourceColumn: DayOfWeek
+
+		annotation SummarizationSetBy = Automatic
+
+	column DayOfWeekNumber
+		dataType: int64
+		formatString: 0
+		lineageTag: 0a5d384a-914a-44d9-80a9-6858aa801eee
+		summarizeBy: sum
+		sourceColumn: DayOfWeekNumber
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimDate = m
+		mode: import
+		source =
+				let
+				    StartDate = #date(2016, 1, 1),
+				    EndDate = #date(2018, 12, 31),
+				
+				    DateList = List.Dates(
+				        StartDate,
+				        Duration.Days(EndDate - StartDate) + 1,
+				        #duration(1, 0, 0, 0)
+				    ),
+				
+				    #"Converted to Table" = Table.FromList(
+				        DateList,
+				        Splitter.SplitByNothing(),
+				        {"Date"}
+				    ),
+				
+				    #"Changed Type" = Table.TransformColumnTypes(
+				        #"Converted to Table",
+				        {{"Date", type date}}
+				    ),
+				
+				    #"Added Year" = Table.AddColumn(
+				        #"Changed Type",
+				        "Year",
+				        each Date.Year([Date]),
+				        Int64.Type
+				    ),
+				
+				    #"Added Quarter" = Table.AddColumn(
+				        #"Added Year",
+				        "Quarter",
+				        each "Q" & Text.From(Date.QuarterOfYear([Date])),
+				        type text
+				    ),
+				
+				    #"Added Month Number" = Table.AddColumn(
+				        #"Added Quarter",
+				        "MonthNumber",
+				        each Date.Month([Date]),
+				        Int64.Type
+				    ),
+				
+				    #"Added Month" = Table.AddColumn(
+				        #"Added Month Number",
+				        "Month",
+				        each Date.MonthName([Date]),
+				        type text
+				    ),
+				
+				    #"Added Month Year" = Table.AddColumn(
+				        #"Added Month",
+				        "MonthYear",
+				        each Date.ToText([Date], "MMM yyyy"),
+				        type text
+				    ),
+				
+				    #"Added Day" = Table.AddColumn(
+				        #"Added Month Year",
+				        "Day",
+				        each Date.Day([Date]),
+				        Int64.Type
+				    ),
+				
+				    #"Added Day of Week" = Table.AddColumn(
+				        #"Added Day",
+				        "DayOfWeek",
+				        each Date.DayOfWeekName([Date]),
+				        type text
+				    ),
+				
+				    #"Added Day Number" = Table.AddColumn(
+				        #"Added Day of Week",
+				        "DayOfWeekNumber",
+				        each Date.DayOfWeek([Date], Day.Monday) + 1,
+				        Int64.Type
+				    )
+				
+				in
+				    #"Added Day Number"
+
+	annotation PBI_ResultType = Table
+

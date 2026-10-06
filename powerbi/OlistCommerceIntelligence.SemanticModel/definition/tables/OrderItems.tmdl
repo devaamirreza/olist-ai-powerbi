@@ -1,6 +1,18 @@
 table OrderItems
 	lineageTag: d25dc47c-a5f9-4b15-b0e8-a490f927685f
 
+	measure 'Total Sales' = SUM('OrderItems'[SalesAmount])
+		formatString: #,##0.00
+		lineageTag: 9a51fe78-8b06-4a5a-8686-73b2ea03e350
+
+	measure 'Total Freight' = SUM('OrderItems'[FreightAmount])
+		formatString: #,##0.00
+		lineageTag: f7e9df38-57a1-49f3-a77b-5b4baa682b67
+
+	measure 'Average Order Value' = DIVIDE([Total Sales], DISTINCTCOUNT('OrderItems'[order_id]))
+		formatString: #,##0.00
+		lineageTag: 15a922c0-28ce-4d14-9aec-3d2948775ce3
+
 	column order_id
 		dataType: string
 		lineageTag: a0db9a8f-8f09-483e-95cf-b13ad1dcd00c

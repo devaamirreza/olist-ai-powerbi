@@ -1,6 +1,10 @@
 table Reviews
 	lineageTag: 19e3564c-72b7-4196-8cea-37cf9d5bac2b
 
+	measure 'Average Review Score' = AVERAGE('Reviews'[ReviewScore])
+		formatString: 0.00
+		lineageTag: 3d8c7525-6184-42e5-9ab3-9e78fcc01334
+
 	column review_id
 		dataType: string
 		lineageTag: fa61d735-1275-4a09-b88b-e7b1a7829f99

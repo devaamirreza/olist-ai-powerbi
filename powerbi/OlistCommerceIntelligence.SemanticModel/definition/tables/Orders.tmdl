@@ -1,6 +1,32 @@
 table Orders
 	lineageTag: 0c39bbc0-1485-47bd-aa51-284e71c4056d
 
+	measure 'Total Orders' = DISTINCTCOUNT('Orders'[order_id])
+		formatString: #,##0
+		lineageTag: afec5f05-c822-47a6-913b-e739adef208f
+
+	measure 'Total Customers' = DISTINCTCOUNT('Orders'[customer_unique_id])
+		formatString: #,##0
+		lineageTag: c4010269-2cb3-4d66-95d6-2699f6ca1d60
+
+	measure 'Average Delivery Days' = AVERAGE('Orders'[DeliveryDays])
+		formatString: 0.0
+		lineageTag: 67b0a027-2463-403c-a89c-e2f9d9118524
+
+	measure 'On Time Delivery %' =
+			DIVIDE(
+			    CALCULATE(
+			        DISTINCTCOUNT('Orders'[order_id]),
+			        'Orders'[DeliveryPerformance] = "On Time"
+			    ),
+			    CALCULATE(
+			        DISTINCTCOUNT('Orders'[order_id]),
+			        'Orders'[DeliveryStatus] = "Delivered"
+			    )
+			)
+		formatString: 0.0%
+		lineageTag: 3d81aaaf-88c1-4174-9329-a0a860fe65bc
+
 	column order_id
 		dataType: string
 		lineageTag: fa6463ec-4d47-44cd-920e-cadb8692b7f3
